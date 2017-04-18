@@ -1,4 +1,9 @@
 *.tar.gz
 *.tgz
+*.pyc
+*.zip
+
 tags
 **/build/
+**/target/
+
