@@ -6,7 +6,7 @@
 There will be a [Kafka][2] cluster to be used as a queue to receive and send location data; and a [spark][3] cluster to process those location data in real time; 
 and a [hbase][4] cluster to restore those location data in database; and a [redis][5] cluster to serve as a cache for query from users.
 
-&nbsp;&nbsp;&nbsp;&nbsp;The steps to set up the environment is documented in *setup.md*. The steps to build and test the projects is documented in *bulid.md*.  
+&nbsp;&nbsp;&nbsp;&nbsp;The steps to set up the environment is documented in *setup.md*. The steps to build and test the projects is documented in *bulid.md*.
 The projects used in this repo is in *projects* directory.  
 
 [1]: https://www.docker.com/
