@@ -17,7 +17,8 @@ import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaUtils}
 import org.apache.spark.streaming.{Minutes, Seconds, StreamingContext}
 import scala.collection.mutable.ListBuffer
-
+import java.text.SimpleDateFormat
+import java.util.Date
 
 object KafkaSparkHbase
 {
@@ -32,7 +33,7 @@ object KafkaSparkHbase
     val Array(broker, zk, topic, hbaseRootDir, htableName) = args
 
     val sparkConf = new SparkConf().setAppName("BicycleTrackMonitor")
-    val ssc = new StreamingContext(sparkConf, Seconds(10))
+    val ssc = new StreamingContext(sparkConf, Seconds(2))
 
     val kafkaConf = Map("metadata.broker.list" -> broker,
                         "zookeeper.connect" -> zk,
@@ -66,13 +67,20 @@ object KafkaSparkHbase
     ssc.awaitTermination()
   }
 
+  def getCurrentTimestamp(): String={
+        val now = new Date()
+        val str = now.getTime + ""
+        str.substring(0,10)
+  }
+
+
   def convert(t: (String)) = {
     val Array(id_time, longtitude, latitude, angle, velocity) = t.split(",")
     val p = new Put(Bytes.toBytes(id_time))
     p.add(Bytes.toBytes("position"), Bytes.toBytes("longtitude"), Bytes.toBytes(longtitude))
     p.add(Bytes.toBytes("position"), Bytes.toBytes("latitude"), Bytes.toBytes(latitude))
     p.add(Bytes.toBytes("move"), Bytes.toBytes("angle"), Bytes.toBytes(angle))
-    p.add(Bytes.toBytes("move"), Bytes.toBytes("velocity"), Bytes.toBytes(velocity))
+    p.add(Bytes.toBytes("move"), Bytes.toBytes("velocity"), Bytes.toBytes(velocity + '@' + getCurrentTimestamp()))
     (id_time, p)
   }
 }

@@ -8,7 +8,7 @@ LIBS_SEARCH_PATH = /usr/local/lib
 INCLUDES =  
 
 
-CC = g++ --std=c++11
+CC = g++ -ggdb3 --std=c++11
 RM = rm -rf
 MKDIR = mkdir -p
 

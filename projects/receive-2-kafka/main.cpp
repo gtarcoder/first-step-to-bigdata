@@ -81,7 +81,6 @@ static void metadata_print (const std::string &topic,
 class ExampleDeliveryReportCb : public RdKafka::DeliveryReportCb {
  public:
   void dr_cb (RdKafka::Message &message) {
-      return;
 
     std::cout << "Message delivery for (" << message.len() << " bytes): " <<
         message.errstr() << std::endl;
@@ -143,7 +142,7 @@ static void sigterm (int sig) {
 }
 static bool exit_eof = false;
 std::string brokers = "localhost";
-std::string errstr;
+std::string errstr = "error!";
 std::string topic_str;
 std::string mode;
 std::string debug;
@@ -207,10 +206,9 @@ std::tuple<RdKafka::Producer*, RdKafka::Topic*> InitRdKafka(int argc, char* argv
     }
 
 
-    ExampleDeliveryReportCb ex_dr_cb;
-
     /* Set delivery report callback */
-    conf->set("dr_cb", &ex_dr_cb, errstr);
+    //ExampleDeliveryReportCb ex_dr_cb;
+    //conf->set("dr_cb", &ex_dr_cb, errstr);
 
     /*
      * Create producer using accumulated global configuration.
@@ -243,8 +241,8 @@ void ReceiveFunc(){
     while(run){
         recv_len = recv_sock.Recv(recv_buffer, kMaxBufSize);
         if(recv_len > 0){
-            //fifo_queue.PushPacketMutex(recv_buffer, recv_len);
-            fifo_queue.PushPacketLockFree(recv_buffer, recv_len);
+            fifo_queue.PushPacketMutex(recv_buffer, recv_len);
+            //fifo_queue.PushPacketLockFree(recv_buffer, recv_len);
             recv_count ++;            
         }
     }   
@@ -256,17 +254,21 @@ void ProcsFunc(RdKafka::Producer* producer, RdKafka::Topic* topic){
     char procs_buffer[kMaxBufSize];
     RdKafka::ErrorCode resp; 
     while(run){
-        //fifo_queue.PopPacketMutex(procs_buffer, &procs_len);
-        fifo_queue.PopPacketLockFree(procs_buffer, &procs_len);
+        fifo_queue.PopPacketMutex(procs_buffer, &procs_len);
+        //fifo_queue.PopPacketLockFree(procs_buffer, &procs_len);
         while(true){
             resp = producer->produce(topic, partition, RdKafka::Producer::RK_MSG_COPY /* Copy payload */,
                   procs_buffer, procs_len,
                   NULL, NULL);
+            //printf("pushing %s to kafka, resp = %d\n", procs_buffer, resp); 
+            if (resp == RdKafka::ERR__QUEUE_FULL){
+                producer->poll(1000);
+                continue;
+            }
             if(resp != RdKafka::ERR_NO_ERROR)
             {
-              producer->poll(100);
-            }
-            else
+                printf("producer send error %s\n", RdKafka::err2str(resp).c_str());
+            }else
               break;
         }
     }

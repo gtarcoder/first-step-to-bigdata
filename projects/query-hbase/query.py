@@ -1,6 +1,5 @@
 import sys, os
-import time 
-from datetime import datetime, timedelta
+import time, datetime
 
 from thrift.transport import TSocket
 from thrift.protocol import TBinaryProtocol
@@ -8,7 +7,10 @@ from thrift.transport import TTransport
 from hbase import Hbase
 from hbase.ttypes import *
 
-def Open(host, port):
+gHbaseHost = '172.17.0.3'
+gHbasePort = 9090
+
+def openConnection(host, port):
     #connect to hbase thrift server
     transport = TTransport.TBufferedTransport(TSocket.TSocket(host, port))
     protocol = TBinaryProtocol.TBinaryProtocolAccelerated(transport)
@@ -19,40 +21,56 @@ def Open(host, port):
     return transport, client
 
 
-def Close(transport, client):
+def closeConnection(transport, client):
     transport.close()
 
 
-def test(host, port):
-    bicycle_id = 1000100
-    transport, client = Open(host, port)
+def parseTrackInfo(tresult):
+    id_time = tresult.row.split('@')
+    longtitude = tresult.columns['position:longtitude'].value
+    latitude = tresult.columns['position:latitude'].value
+    angle = tresult.columns['move:angle'].value
+    velocity = tresult.columns['move:velocity'].value
 
-    while True:
-        avg_delay = 100000000000000000
-        end_time = datetime.now()
-        start_time = end_time - timedelta(seconds=1000) 
-        end_time = int(time.mktime(end_time.timetuple()))
-        start_time = int(time.mktime(start_time.timetuple()))
+    print 'bicycle %s\'s track status at time %s is : \n\
+                 longtitude : %s %s\n \
+                latitude   : %s %s\n \
+                angle      : %s\n \
+                velocity   : %s\n' % (id_time[0], 
+                datetime.datetime.fromtimestamp(int(id_time[1])).strftime('%Y-%m-%d %H:%M:%S'), 
+                longtitude,
+                'E' if longtitude.find('-') < 0 else 'W',
+                latitude,
+                'N' if latitude.find('-') < 0 else 'S',
+                angle,
+                velocity)
 
-        id = client.scannerOpenWithStop(tableName='bicycle_track',
-                    startRow=str(bicycle_id)+'@'+str(start_time), 
-                    stopRow=str(bicycle_id)+'@'+str(end_time), 
-                    columns=['position'], 
+    
+def query(client, bicycle_id):
+    id = client.scannerOpenWithStop(tableName='bicycle_track',
+                    startRow=bicycle_id+'@000000', 
+                    stopRow=str(int(bicycle_id) + 1) +'@000000', 
+                    columns=['position', 'move'],
                     attributes=None)
-
-        result = client.scannerGetList(id, 100000)
-        if len(result):
-            timestamp = result[-1].row
-            #print timestamp, end_time, end_time - int(timestamp.split('@')[-1])
-            avg_delay = min(avg_delay, end_time - int(timestamp.split('@')[-1]))
-        print 'average delay = ', avg_delay
-
-    Close(transport, client)
+    result = []
+    while True:
+        ret = client.scannerGetList(id, 100000)
+        result += ret
+        if len(ret) == 0:
+            break
+    for tresult in result:
+        parseTrackInfo(tresult)
+        
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print 'usage: query host port'
+    if len(sys.argv) == 1:
+        print 'usage: query bicycle_id1 bicycle_id2 ....'
         exit(1)
+    else:
+        transport, client = openConnection(gHbaseHost, gHbasePort)
+        for bid in sys.argv[1:]:
+            query(client, bid)
+        closeConnection(transport, client)
 
-    test(sys.argv[1], int(sys.argv[2]))
+

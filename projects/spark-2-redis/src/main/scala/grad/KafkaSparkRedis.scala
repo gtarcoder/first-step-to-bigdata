@@ -12,6 +12,8 @@ import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaUtils}
 import org.apache.spark.streaming.{Duration, Time, Minutes, Seconds, StreamingContext}
 import scala.collection.mutable.ListBuffer
 
+import java.text.SimpleDateFormat
+import java.util.Date
 
 object KafkaSparkRedis
 {
@@ -27,11 +29,11 @@ object KafkaSparkRedis
         
     val sparkConf = new SparkConf().setAppName("BicycleTrackMonitor")
     val sc = new SparkContext(sparkConf)
-    val ssc = new StreamingContext(sc, Seconds(10))
+    val ssc = new StreamingContext(sc, Seconds(2))
 
     val kafkaConf = Map("metadata.broker.list" -> broker,
                         "zookeeper.connect" -> zk,
-                        "group.id" -> "kafka-spark-streaming",
+                        "group.id" -> "kafka-spark-redis",
                         "zookeeper.connection.timeout.ms" -> "1000")
 
     val lines = KafkaUtils.createStream[Array[Byte], String, DefaultDecoder, StringDecoder](
@@ -47,7 +49,7 @@ object KafkaSparkRedis
                     partition.foreach(record => {
                         val id = record._1
                         val time = record._2._1
-                        val info = record._2._2
+                        val info = record._2._2 + '@' + getCurrentTimestamp()
                         val zset_name = "info_" + id
                         //add to zset
                         pl.zadd(zset_name, time, info) 
@@ -59,6 +61,12 @@ object KafkaSparkRedis
             })
     ssc.start()
     ssc.awaitTermination()
+  }
+
+  def getCurrentTimestamp(): String={
+        val now = new Date()
+        val str = now.getTime + ""
+        str.substring(0,10)
   }
 
   def convert(t: (String)) = {
