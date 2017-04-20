@@ -1,0 +1,105 @@
+2017-03-10 08:23:18,076 [myid:] - INFO  [main:QuorumPeerConfig@124] - Reading configuration from: /usr/local/zookeeper/bin/../conf/zoo.cfg
+2017-03-10 08:23:18,090 [myid:] - INFO  [main:QuorumPeer$QuorumServer@149] - Resolved hostname: slave1.multihost to address: slave1.multihost/10.0.0.7
+2017-03-10 08:23:18,091 [myid:] - INFO  [main:QuorumPeer$QuorumServer@149] - Resolved hostname: master1.multihost to address: master1.multihost/10.0.0.3
+2017-03-10 08:23:18,092 [myid:] - INFO  [main:QuorumPeer$QuorumServer@149] - Resolved hostname: slave2.multihost to address: slave2.multihost/10.0.0.9
+2017-03-10 08:23:18,092 [myid:] - INFO  [main:QuorumPeerConfig@352] - Defaulting to majority quorums
+2017-03-10 08:23:18,094 [myid:1] - INFO  [main:DatadirCleanupManager@78] - autopurge.snapRetainCount set to 3
+2017-03-10 08:23:18,094 [myid:1] - INFO  [main:DatadirCleanupManager@79] - autopurge.purgeInterval set to 0
+2017-03-10 08:23:18,095 [myid:1] - INFO  [main:DatadirCleanupManager@101] - Purge task is not scheduled.
+2017-03-10 08:23:18,102 [myid:1] - INFO  [main:QuorumPeerMain@127] - Starting quorum peer
+2017-03-10 08:23:18,109 [myid:1] - INFO  [main:NIOServerCnxnFactory@89] - binding to port 0.0.0.0/0.0.0.0:2181
+2017-03-10 08:23:18,115 [myid:1] - INFO  [main:QuorumPeer@1019] - tickTime set to 2000
+2017-03-10 08:23:18,115 [myid:1] - INFO  [main:QuorumPeer@1039] - minSessionTimeout set to -1
+2017-03-10 08:23:18,115 [myid:1] - INFO  [main:QuorumPeer@1050] - maxSessionTimeout set to -1
+2017-03-10 08:23:18,115 [myid:1] - INFO  [main:QuorumPeer@1065] - initLimit set to 10
+2017-03-10 08:23:18,125 [myid:1] - INFO  [main:QuorumPeer@533] - currentEpoch not found! Creating with a reasonable default of 0. This should only happen when you are upgrading your installation
+2017-03-10 08:23:18,129 [myid:1] - INFO  [main:QuorumPeer@548] - acceptedEpoch not found! Creating with a reasonable default of 0. This should only happen when you are upgrading your installation
+2017-03-10 08:23:18,138 [myid:1] - INFO  [ListenerThread:QuorumCnxManager$Listener@534] - My election bind port: slave1.multihost/10.0.0.7:3888
+2017-03-10 08:23:18,144 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:QuorumPeer@774] - LOOKING
+2017-03-10 08:23:18,146 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:FastLeaderElection@818] - New election. My id =  1, proposed zxid=0x0
+2017-03-10 08:23:18,151 [myid:1] - INFO  [WorkerReceiver[myid=1]:FastLeaderElection@600] - Notification: 1 (message format version), 1 (n.leader), 0x0 (n.zxid), 0x1 (n.round), LOOKING (n.state), 1 (n.sid), 0x0 (n.peerEpoch) LOOKING (my state)
+2017-03-10 08:23:18,152 [myid:1] - WARN  [WorkerSender[myid=1]:QuorumCnxManager@400] - Cannot open channel to 2 at election address slave2.multihost/10.0.0.9:3888
+java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:579)
+	at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectOne(QuorumCnxManager.java:381)
+	at org.apache.zookeeper.server.quorum.QuorumCnxManager.toSend(QuorumCnxManager.java:354)
+	at org.apache.zookeeper.server.quorum.FastLeaderElection$Messenger$WorkerSender.process(FastLeaderElection.java:452)
+	at org.apache.zookeeper.server.quorum.FastLeaderElection$Messenger$WorkerSender.run(FastLeaderElection.java:433)
+	at java.lang.Thread.run(Thread.java:745)
+2017-03-10 08:23:18,153 [myid:1] - INFO  [WorkerSender[myid=1]:QuorumPeer$QuorumServer@149] - Resolved hostname: slave2.multihost to address: slave2.multihost/10.0.0.9
+2017-03-10 08:23:18,161 [myid:1] - INFO  [WorkerReceiver[myid=1]:FastLeaderElection@600] - Notification: 1 (message format version), 0 (n.leader), 0x0 (n.zxid), 0x1 (n.round), LOOKING (n.state), 0 (n.sid), 0x0 (n.peerEpoch) LOOKING (my state)
+2017-03-10 08:23:18,162 [myid:1] - INFO  [WorkerReceiver[myid=1]:FastLeaderElection@600] - Notification: 1 (message format version), 1 (n.leader), 0x0 (n.zxid), 0x1 (n.round), LOOKING (n.state), 0 (n.sid), 0x0 (n.peerEpoch) LOOKING (my state)
+2017-03-10 08:23:18,363 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:QuorumPeer@856] - LEADING
+2017-03-10 08:23:18,366 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Leader@59] - TCP NoDelay set to: true
+2017-03-10 08:23:18,375 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:zookeeper.version=3.4.9-1757313, built on 08/23/2016 06:50 GMT
+2017-03-10 08:23:18,375 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:host.name=slave1
+2017-03-10 08:23:18,375 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:java.version=1.7.0_80
+2017-03-10 08:23:18,375 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:java.vendor=Oracle Corporation
+2017-03-10 08:23:18,375 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:java.home=/usr/local/jdk1.7.0_80/jre
+2017-03-10 08:23:18,375 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:java.class.path=/usr/local/zookeeper/bin/../build/classes:/usr/local/zookeeper/bin/../build/lib/*.jar:/usr/local/zookeeper/bin/../lib/slf4j-log4j12-1.6.1.jar:/usr/local/zookeeper/bin/../lib/slf4j-api-1.6.1.jar:/usr/local/zookeeper/bin/../lib/netty-3.10.5.Final.jar:/usr/local/zookeeper/bin/../lib/log4j-1.2.16.jar:/usr/local/zookeeper/bin/../lib/jline-0.9.94.jar:/usr/local/zookeeper/bin/../zookeeper-3.4.9.jar:/usr/local/zookeeper/bin/../src/java/lib/*.jar:/usr/local/zookeeper/bin/../conf:/usr/local/jdk1.7.0_80/lib/dt.jar:/usr/local/jdk1.7.0_80/lib/tools.jar
+2017-03-10 08:23:18,376 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:java.library.path=/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+2017-03-10 08:23:18,376 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:java.io.tmpdir=/tmp
+2017-03-10 08:23:18,376 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:java.compiler=<NA>
+2017-03-10 08:23:18,376 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:os.name=Linux
+2017-03-10 08:23:18,376 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:os.arch=amd64
+2017-03-10 08:23:18,376 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:os.version=3.10.0-327.el7.x86_64
+2017-03-10 08:23:18,376 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:user.name=hadoop
+2017-03-10 08:23:18,376 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:user.home=/home/hadoop
+2017-03-10 08:23:18,376 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Environment@100] - Server environment:user.dir=/usr/local/zookeeper-3.4.9/conf
+2017-03-10 08:23:18,379 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:ZooKeeperServer@173] - Created server with tickTime 2000 minSessionTimeout 4000 maxSessionTimeout 40000 datadir /usr/local/zookeeper/data/version-2 snapdir /usr/local/zookeeper/data/version-2
+2017-03-10 08:23:18,380 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Leader@361] - LEADING - LEADER ELECTION TOOK - 234
+2017-03-10 08:23:18,415 [myid:1] - INFO  [LearnerHandler-/10.0.0.3:59515:LearnerHandler@329] - Follower sid: 0 : info : org.apache.zookeeper.server.quorum.QuorumPeer$QuorumServer@38cf13b1
+2017-03-10 08:23:18,425 [myid:1] - INFO  [LearnerHandler-/10.0.0.3:59515:LearnerHandler@384] - Synchronizing with Follower sid: 0 maxCommittedLog=0x0 minCommittedLog=0x0 peerLastZxid=0x0
+2017-03-10 08:23:18,425 [myid:1] - INFO  [LearnerHandler-/10.0.0.3:59515:LearnerHandler@393] - leader and follower are in sync, zxid=0x0
+2017-03-10 08:23:18,425 [myid:1] - INFO  [LearnerHandler-/10.0.0.3:59515:LearnerHandler@458] - Sending DIFF
+2017-03-10 08:23:18,442 [myid:1] - INFO  [LearnerHandler-/10.0.0.3:59515:LearnerHandler@518] - Received NEWLEADER-ACK message from 0
+2017-03-10 08:23:18,443 [myid:1] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:Leader@952] - Have quorum of supporters, sids: [ 0,1 ]; starting up and setting last processed zxid: 0x100000000
+2017-03-10 08:23:20,819 [myid:1] - INFO  [slave1.multihost/10.0.0.7:3888:QuorumCnxManager$Listener@541] - Received connection request /10.0.0.9:42464
+2017-03-10 08:23:20,822 [myid:1] - INFO  [WorkerReceiver[myid=1]:FastLeaderElection@600] - Notification: 1 (message format version), 2 (n.leader), 0x0 (n.zxid), 0x1 (n.round), LOOKING (n.state), 2 (n.sid), 0x0 (n.peerEpoch) LEADING (my state)
+2017-03-10 08:23:20,840 [myid:1] - INFO  [LearnerHandler-/10.0.0.9:40430:LearnerHandler@329] - Follower sid: 2 : info : org.apache.zookeeper.server.quorum.QuorumPeer$QuorumServer@784ee63e
+2017-03-10 08:23:20,846 [myid:1] - INFO  [LearnerHandler-/10.0.0.9:40430:LearnerHandler@384] - Synchronizing with Follower sid: 2 maxCommittedLog=0x0 minCommittedLog=0x0 peerLastZxid=0x0
+2017-03-10 08:23:20,847 [myid:1] - INFO  [LearnerHandler-/10.0.0.9:40430:LearnerHandler@458] - Sending SNAP
+2017-03-10 08:23:20,847 [myid:1] - INFO  [LearnerHandler-/10.0.0.9:40430:LearnerHandler@482] - Sending snapshot last zxid of peer is 0x0  zxid of leader is 0x100000000sent zxid of db as 0x100000000
+2017-03-10 08:23:20,860 [myid:1] - INFO  [LearnerHandler-/10.0.0.9:40430:LearnerHandler@518] - Received NEWLEADER-ACK message from 2
+2017-03-10 08:23:49,694 [myid:1] - INFO  [SyncThread:1:FileTxnLog@203] - Creating new log file: log.100000001
+2017-03-10 08:23:50,525 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@192] - Accepted socket connection from /10.0.0.7:40172
+2017-03-10 08:23:50,530 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@928] - Client attempting to establish new session at /10.0.0.7:40172
+2017-03-10 08:23:50,538 [myid:1] - INFO  [CommitProcessor:1:ZooKeeperServer@673] - Established session 0x15ab7509ead0000 with negotiated timeout 40000 for client /10.0.0.7:40172
+2017-03-10 08:23:50,700 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@192] - Accepted socket connection from /10.0.0.8:54029
+2017-03-10 08:23:50,702 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@928] - Client attempting to establish new session at /10.0.0.8:54029
+2017-03-10 08:23:50,708 [myid:1] - INFO  [CommitProcessor:1:ZooKeeperServer@673] - Established session 0x15ab7509ead0001 with negotiated timeout 40000 for client /10.0.0.8:54029
+2017-03-10 08:23:50,797 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@192] - Accepted socket connection from /10.0.0.9:44030
+2017-03-10 08:23:50,800 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@928] - Client attempting to establish new session at /10.0.0.9:44030
+2017-03-10 08:23:50,805 [myid:1] - INFO  [CommitProcessor:1:ZooKeeperServer@673] - Established session 0x15ab7509ead0002 with negotiated timeout 40000 for client /10.0.0.9:44030
+2017-03-10 08:23:51,692 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@192] - Accepted socket connection from /10.0.0.3:45071
+2017-03-10 08:23:51,693 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@928] - Client attempting to establish new session at /10.0.0.3:45071
+2017-03-10 08:23:51,699 [myid:1] - INFO  [CommitProcessor:1:ZooKeeperServer@673] - Established session 0x15ab7509ead0003 with negotiated timeout 40000 for client /10.0.0.3:45071
+2017-03-10 08:23:51,814 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x5ab7509eab0000 type:create cxid:0x2c zxid:0x100000018 txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot Error:KeeperErrorCode = NoNode for /hbase/online-snapshot
+2017-03-10 08:23:51,831 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0001 type:create cxid:0x7 zxid:0x10000001b txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot/acquired Error:KeeperErrorCode = NodeExists for /hbase/online-snapshot/acquired
+2017-03-10 08:23:51,835 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0000 type:create cxid:0x7 zxid:0x10000001c txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot/acquired Error:KeeperErrorCode = NodeExists for /hbase/online-snapshot/acquired
+2017-03-10 08:23:51,835 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x5ab7509eab0000 type:create cxid:0x2e zxid:0x10000001d txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot/acquired Error:KeeperErrorCode = NodeExists for /hbase/online-snapshot/acquired
+2017-03-10 08:23:51,846 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0001 type:create cxid:0x9 zxid:0x10000001f txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot/reached Error:KeeperErrorCode = NodeExists for /hbase/online-snapshot/reached
+2017-03-10 08:23:51,847 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x5ab7509eab0000 type:create cxid:0x30 zxid:0x100000020 txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot/reached Error:KeeperErrorCode = NodeExists for /hbase/online-snapshot/reached
+2017-03-10 08:23:51,855 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0000 type:create cxid:0xa zxid:0x100000022 txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot/abort Error:KeeperErrorCode = NodeExists for /hbase/online-snapshot/abort
+2017-03-10 08:23:51,857 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x5ab7509eab0000 type:create cxid:0x32 zxid:0x100000023 txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot/abort Error:KeeperErrorCode = NodeExists for /hbase/online-snapshot/abort
+2017-03-10 08:23:51,863 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0002 type:create cxid:0xc zxid:0x100000024 txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc Error:KeeperErrorCode = NoNode for /hbase/flush-table-proc
+2017-03-10 08:23:51,863 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0001 type:create cxid:0xb zxid:0x100000025 txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc Error:KeeperErrorCode = NoNode for /hbase/flush-table-proc
+2017-03-10 08:23:51,866 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0000 type:create cxid:0xb zxid:0x100000026 txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc Error:KeeperErrorCode = NoNode for /hbase/flush-table-proc
+2017-03-10 08:23:51,872 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0000 type:create cxid:0xc zxid:0x100000028 txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc Error:KeeperErrorCode = NodeExists for /hbase/flush-table-proc
+2017-03-10 08:23:51,872 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0001 type:create cxid:0xc zxid:0x100000029 txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc Error:KeeperErrorCode = NodeExists for /hbase/flush-table-proc
+2017-03-10 08:23:51,878 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0002 type:create cxid:0xe zxid:0x10000002b txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc/acquired Error:KeeperErrorCode = NodeExists for /hbase/flush-table-proc/acquired
+2017-03-10 08:23:51,879 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0000 type:create cxid:0xd zxid:0x10000002c txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc/acquired Error:KeeperErrorCode = NodeExists for /hbase/flush-table-proc/acquired
+2017-03-10 08:23:51,882 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0001 type:create cxid:0xd zxid:0x10000002d txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc/acquired Error:KeeperErrorCode = NodeExists for /hbase/flush-table-proc/acquired
+2017-03-10 08:23:51,894 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0002 type:create cxid:0x11 zxid:0x100000030 txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc/abort Error:KeeperErrorCode = NodeExists for /hbase/flush-table-proc/abort
+2017-03-10 08:23:51,895 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x5ab7509eab0000 type:create cxid:0x3a zxid:0x100000031 txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc/abort Error:KeeperErrorCode = NodeExists for /hbase/flush-table-proc/abort
+2017-03-10 08:23:52,014 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@192] - Accepted socket connection from /10.0.0.3:45072
+2017-03-10 08:23:52,015 [myid:1] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@928] - Client attempting to establish new session at /10.0.0.3:45072
+2017-03-10 08:23:52,020 [myid:1] - INFO  [CommitProcessor:1:ZooKeeperServer@673] - Established session 0x15ab7509ead0004 with negotiated timeout 40000 for client /10.0.0.3:45072
+2017-03-10 08:23:52,023 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0004 type:create cxid:0x1 zxid:0x100000036 txntype:-1 reqpath:n/a Error Path:/hbase/replication Error:KeeperErrorCode = NoNode for /hbase/replication
+2017-03-10 08:23:52,315 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x15ab7509ead0001 type:create cxid:0x15 zxid:0x10000003d txntype:-1 reqpath:n/a Error Path:/hbase/replication/peers Error:KeeperErrorCode = NodeExists for /hbase/replication/peers
+2017-03-10 08:23:57,425 [myid:1] - INFO  [ProcessThread(sid:1 cport:-1)::PrepRequestProcessor@649] - Got user-level KeeperException when processing sessionid:0x5ab7509eab0000 type:delete cxid:0x53 zxid:0x10000003e txntype:-1 reqpath:n/a Error Path:/hbase/meta-region-server Error:KeeperErrorCode = NoNode for /hbase/meta-region-server
