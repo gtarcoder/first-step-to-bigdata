@@ -96,7 +96,7 @@ docker create -it --name kafka3 -h kafka3 --net multihost -v /etc/localtime:/etc
 broker=1 #kafka1，kafka2，kafka3分别不同
 lsteners=PLAINTEXT://:9092
 port=9092
-host.name=kafka2
+host.name=0.0.0.0
 advertised.host.name=kafka2
 zookeeper.connect=master1:2181,slave1:2181,slave2:2181 #使用之前搭建好的zookeeper
 ```
@@ -145,7 +145,14 @@ docker create -it --name redis1 -h redis1 --net multihost \
            -v /etc/localtime:/etc/localtime \
            debugman007/ubt14-redis:v1
 ```
-debugman007/ubt14-redis:v1 镜像在容器启动的时候，就自动启动了redis server
+debugman007/ubt14-redis:v1 镜像在容器启动的时候，就自动启动了redis server  
+
+启动容器后，需要设置 redis2和redis3作为redis1的slave节点，这样可以做到分摊读取，设置过程：
+```
+vim /etc/redis/redis.conf
+
+slaveof kafka1 6379
+```
 
 
 [1]: http://www.cnblogs.com/gtarcoder/p/6425669.html 

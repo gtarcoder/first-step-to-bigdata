@@ -5,7 +5,9 @@ import os, sys, redis
 import time, datetime
 import threading
 
-gRedisHost = '172.17.0.4'
+#redis 的IP地址，这里使用容器 redis1 的IP地址
+gRedisHost = '172.17.0.5'
+#redis 数据库序号
 gDbIndex = 1
 
 def parseTrackInfo(info):

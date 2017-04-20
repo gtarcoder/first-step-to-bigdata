@@ -9,7 +9,9 @@ from thrift.transport import TTransport
 from hbase import Hbase
 from hbase.ttypes import *
 
-gHbaseHost = '172.17.0.3'
+#thrift server的ip地址。docker容器 master1中执行 hbase-daemon.sh start thrift， 可以启动thrift server
+#此IP地址就是 master1的对外IP地址
+gHbaseHost = '172.17.0.2'
 gHbasePort = 9090
 
 def openConnection(host, port):

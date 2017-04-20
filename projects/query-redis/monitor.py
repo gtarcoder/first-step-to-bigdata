@@ -5,7 +5,7 @@ import os, sys, redis
 import time
 import threading
 
-gRedisHost = '172.17.0.4'
+gRedisHost = '172.17.0.5'
 gDbIndex = 1
 
 
