@@ -1,5 +1,6 @@
 #include<iostream>
 #include<thread>
+#include<vector>
 #include<tuple>
 #include<string>
 #include<stdio.h>
@@ -154,20 +155,15 @@ int opt;
 MyHashPartitionerCb hash_partitioner;
 int use_ccb = 0;
 
-FifoQueue fifo_queue;
+vector<FifoQueue*> fifo_queues;
 UdpSocket recv_sock;
 const int kMaxSize = 1000000;
 
 
 
-std::tuple<RdKafka::Producer*, RdKafka::Topic*, int> InitRdKafka(int argc, char* argv[]){
-    if(argc != 4){
-        std::cout << "usage: receive brokers topic_str bindport" << std::endl;
-        exit(1);
-    }
-    brokers = argv[1];
-    topic_str = argv[2];
-    int bind_port = 10000 + atoi(argv[3]);
+std::tuple<RdKafka::Producer*, RdKafka::Topic*> InitRdKafka(){
+    brokers = "kafka1:9092,kafka2:9092,kafka3:9092";
+    topic_str = "bicycle_track";
     run = true;
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);
@@ -186,30 +182,7 @@ std::tuple<RdKafka::Producer*, RdKafka::Topic*, int> InitRdKafka(int argc, char*
     ExampleEventCb ex_event_cb;
     conf->set("event_cb", &ex_event_cb, errstr);
 
-    /*
-    int pass;
-    for (pass = 0 ; pass < 2 ; pass++) {
-      std::list<std::string> *dump;
-      if (pass == 0) {
-        dump = conf->dump();
-        std::cout << "# Global config" << std::endl;
-      } else {
-        dump = tconf->dump();
-        std::cout << "# Topic config" << std::endl;
-      }
-
-      for (std::list<std::string>::iterator it = dump->begin();
-           it != dump->end(); ) {
-        std::cout << *it << " = ";
-        it++;
-        std::cout << *it << std::endl;
-        it++;
-      }
-      std::cout << std::endl;
-    }
-    */
-
-    /* Set delivery report callback */
+      /* Set delivery report callback */
     //ExampleDeliveryReportCb ex_dr_cb;
     //conf->set("dr_cb", &ex_dr_cb, errstr);
 
@@ -233,7 +206,7 @@ std::tuple<RdKafka::Producer*, RdKafka::Topic*, int> InitRdKafka(int argc, char*
       std::cerr << "Failed to create topic: " << errstr << std::endl;
       exit(1);
     }
-    return std::make_tuple(producer, topic, bind_port);
+    return std::make_tuple(producer, topic);
 }
 
 void ReceiveFunc(){
@@ -241,17 +214,20 @@ void ReceiveFunc(){
     char recv_buffer[kMaxBufSize];
     int recv_len;
     int recv_count = 0;
+    int fifo_index = 0;
     while(run){
         recv_len = recv_sock.Recv(recv_buffer, kMaxBufSize);
         if(recv_len > 0){
-            fifo_queue.PushPacketMutex(recv_buffer, recv_len);
+            fifo_queues[fifo_index]->PushPacketMutex(recv_buffer, recv_len);
+
+            fifo_index = (fifo_index + 1) % fifo_queues.size();
             //fifo_queue.PushPacketLockFree(recv_buffer, recv_len);
             recv_count ++;            
         }
-    }   
+    }
 }
 
-void ProcsFunc(RdKafka::Producer* producer, RdKafka::Topic* topic){
+void ProcsFunc(RdKafka::Producer* producer, RdKafka::Topic* topic, FifoQueue* fifo_queue){
     const int kMaxBufSize = 5000;
     uint16_t procs_len;
     char procs_buffer[kMaxBufSize];
@@ -260,10 +236,10 @@ void ProcsFunc(RdKafka::Producer* producer, RdKafka::Topic* topic){
     time_t tm_seconds;
     while(run){
         tm_seconds = time((time_t*)NULL);
-        fifo_queue.PopPacketMutex(procs_buffer, &procs_len);
+        fifo_queue->PopPacketMutex(procs_buffer, &procs_len);
         procs_count ++;
         if (procs_count % 100000 == 0){
-            printf("procsing, count = %u, time = %u\n", procs_count, tm_seconds);
+            printf("$$$$$$$$$$$$$process, count = %u, time = %u\n", procs_count, tm_seconds);
             while(producer->outq_len() ){
                 producer->poll(10);
             }
@@ -289,10 +265,14 @@ void ProcsFunc(RdKafka::Producer* producer, RdKafka::Topic* topic){
 
 
 int main(int argc, char* argv[]){
-    std::tuple<RdKafka::Producer*, RdKafka::Topic*, int> param = InitRdKafka(argc, argv); 
+    if(argc != 2){
+        printf("usage : receive write_thread_num\n");
+        return -1;
+    }
+    int write_thread_num = atoi(argv[1]);
     recv_sock.Create();
     recv_sock.SetReusePort(true);
-    recv_sock.Bind("0.0.0.0", std::get<2>(param));
+    recv_sock.Bind("0.0.0.0", 10001);
     recv_sock.SetRecvBufSize(2*1024*1024);
 
 	int recv_buf_size;
@@ -301,9 +281,13 @@ int main(int argc, char* argv[]){
 	printf("recv buf size = %d\n", recv_buf_size);
     
     std::thread recv_thread = std::thread(ReceiveFunc); 
-    std::thread procs_thread = std::thread(std::bind(ProcsFunc, std::get<0>(param), std::get<1>(param)));
+    vector<std::thread> procs_threads;
+    for(int i = 0; i < write_thread_num; i ++){
+        fifo_queues.push_back(new FifoQueue);
+        std::tuple<RdKafka::Producer*, RdKafka::Topic*> param = InitRdKafka(); 
+        procs_threads.push_back(std::thread(std::bind(ProcsFunc, std::get<0>(param), std::get<1>(param), fifo_queues.back())));
+    }
     
     recv_thread.join();
-    procs_thread.join();
     return 0;
 }

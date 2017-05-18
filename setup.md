@@ -86,14 +86,17 @@ docker attach master1
 ##### **3. kafka集群搭建**   
 &nbsp;&nbsp;&nbsp;&nbsp;在 dev-11上搭建三台kafka 容器，使用镜像 debugman007/ubt14-kafka:v1  
 ```
-docker create -it --name kafka1 -h kafka1 --net multihost -v /etc/localtime:/etc/localtime debugman007/ubt14-kafka:v1
-docker create -it --name kafka2 -h kafka2 --net multihost -v /etc/localtime:/etc/localtime debugman007/ubt14-kafka:v1
-docker create -it --name kafka3 -h kafka3 --net multihost -v /etc/localtime:/etc/localtime debugman007/ubt14-kafka:v1
+docker create -it --name kafka1 -h kafka1 --net multihost -v /etc/localtime:/etc/localtime debugman007/ubt14-kafka:v2
+docker create -it --name kafka2 -h kafka2 --net multihost -v /etc/localtime:/etc/localtime debugman007/ubt14-kafka:v2
+docker create -it --name kafka3 -h kafka3 --net multihost -v /etc/localtime:/etc/localtime debugman007/ubt14-kafka:v2
 ```
 
 启动并进入各个容器后，进行kafka的设置:  
 ```
 broker=1 #kafka1，kafka2，kafka3分别不同
+
+delete.topic.enable=true
+
 lsteners=PLAINTEXT://:9092
 port=9092
 host.name=0.0.0.0
@@ -151,7 +154,7 @@ debugman007/ubt14-redis:v1 镜像在容器启动的时候，就自动启动了re
 ```
 vim /etc/redis/redis.conf
 
-slaveof kafka1 6379
+slaveof redis1 6379
 ```
 
 

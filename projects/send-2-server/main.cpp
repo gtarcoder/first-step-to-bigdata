@@ -67,34 +67,50 @@ void sigroutine(int sig){
 }
 
 int main(int argc, char* argv[]){
-    if(argc != 3){
+    if(argc != 5){
         int delay_us = Delay(100);
         printf("delay us = %u us\n", delay_us);
-        printf("usage : send dst_ip total_count\n");
+        printf("usage : send dst_ip bicycle_count total_packet_count delay\n");
         return -1;
     }
     signal(SIGINT, sigroutine);
     char* dst_ip = argv[1];
-    int total_count = atoi(argv[2]);
-    printf("send to %s, total count = %d\n",dst_ip, total_count);
+    int bicycle_count = atoi(argv[2]);
+    int total_count = atoi(argv[3]);
+    int delay = atoi(argv[4]);
+    printf("send to %s, bicycle count = %d, total packet count = %d\n",dst_ip, bicycle_count, total_count);
+    printf("delay = %d\n", delay);
+
     UdpSocket send_sock;
     send_sock.Create();
-    struct sockaddr_in target_addr;
-    target_addr.sin_family = AF_INET;
-    target_addr.sin_port = htons(50000);
-    target_addr.sin_addr.s_addr = inet_addr(dst_ip);
+    /*
+    [3];
+    for(int i = 0; i < 3; i ++){
+        send_sock[i].Create();
+        send_sock[i].Bind("0.0.0.0", i*7 + 10127);
+    }
+    */
+
+    const int kDstPortCount = 1;
+
+    struct sockaddr_in target_addr[kDstPortCount];
+    for(int i = 0; i < kDstPortCount; i ++){
+        target_addr[i].sin_family = AF_INET;
+        target_addr[i].sin_port = htons(10000 + i + 1);
+        target_addr[i].sin_addr.s_addr = inet_addr(dst_ip);
+    }
     
     srand(time(0));
 
     vector<Packet> bicycles;
     struct timeval now;
     gettimeofday(&now, NULL);
-    for(int i = 1; i <= 10000; i ++){
+    for(int i = 1; i <= bicycle_count; i ++){
         bicycles.push_back(
                     {kBaseId + i, 
                     now.tv_sec, 
-                    kBaseLongtitude + rand() % 100000*kDpm,
-                    kBaseLatitude + rand() % 100000*kDpm,
+                    kBaseLongtitude + rand() % bicycle_count*kDpm,
+                    kBaseLatitude + rand() % bicycle_count*kDpm,
                     rand() % 360 - 180,
                     kBaseVelocity + rand()%10 - 5
                     }); 
@@ -103,8 +119,9 @@ int main(int argc, char* argv[]){
     count = 0;
     printf("start time  = %d s\n", tm_seconds); 
     ostringstream ss;
+    int dstaddr_index = 0;
     while(count < total_count){
-        for(int i = 0; i < 10000; i ++){
+        for(int i = 0; i < bicycle_count; i ++){
             tm_seconds = time((time_t*)NULL);
             bicycles[i].timestamp = tm_seconds;
 
@@ -116,10 +133,15 @@ int main(int argc, char* argv[]){
             ss << bicycles[i].bicycle_id << "@" <<  bicycles[i].timestamp << 
                 "," << bicycles[i].longtitude << "," << bicycles[i].latitude << 
                 "," << bicycles[i].angle << "," << bicycles[i].velocity;
+            
+            dstaddr_index = (dstaddr_index + 1) % kDstPortCount;
+            send_sock.SendTo(const_cast<char*>(ss.str().c_str()), ss.str().length(), target_addr[dstaddr_index]);
 
-            send_sock.SendTo(const_cast<char*>(ss.str().c_str()), ss.str().length(), target_addr);
+            if(delay){
+                Delay(delay);
+            } 
             //printf("send to server: %s\n", ss.str().c_str());
-            int delay_us = Delay(100);
+            //int delay_us = Delay(2);
             count ++;
             if(count == total_count)
               break;

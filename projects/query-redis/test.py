@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-#coding = utf-8
+# coding=utf-8
 
 import os, sys, redis
 import time, datetime
 import threading
 
-#redis 的IP地址，这里使用容器 redis1 的IP地址
-gRedisHost = '172.17.0.5'
+#redis 的IP地址，这里使用容器 redis2 的IP地址  
+gRedisHost = '172.17.0.6'
 #redis 数据库序号
 gDbIndex = 1
 
@@ -57,7 +57,7 @@ def query(redis_conn, bicycle_id):
             for x in range(0, 3):
                 avg_delays[x] += delays[x]
             count += 1
-        if count == 1000:
+        if count == 100:
             print 'count = %d' % count
             print 'average delay from send to write redis = %d\naverage delay from write to read redis = %d\n\
 average delay from send to read from redis is %d'%(avg_delays[0]/count, avg_delays[1]/count, avg_delays[2]/count)

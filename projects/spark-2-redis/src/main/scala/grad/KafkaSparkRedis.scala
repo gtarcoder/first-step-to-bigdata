@@ -29,7 +29,7 @@ object KafkaSparkRedis
         
     val sparkConf = new SparkConf().setAppName("BicycleTrackMonitor")
     val sc = new SparkContext(sparkConf)
-    val ssc = new StreamingContext(sc, Seconds(2))
+    val ssc = new StreamingContext(sc, Seconds(1))
 
     val kafkaConf = Map("metadata.broker.list" -> broker,
                         "zookeeper.connect" -> zk,

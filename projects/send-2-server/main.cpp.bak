@@ -1,10 +1,14 @@
 #include<iostream>
+#include<sstream>
 #include<string>
 #include<stdio.h>
+#include<signal.h>
+#include<unistd.h>
 #include<stdlib.h>
 #include<vector>
 #include<cstdlib>
 #include<ctime>
+#include<time.h>
 #include<cmath>
 #include"utils.h"
 #include"udp_socket.h"
@@ -32,6 +36,8 @@ const int kBaseId = 1000000;
 const double kApd = 3.1415926 / 180; // arc per degree
 const double kKmph2Mps = 1.0 / 3.6; // km/h to m/s
 
+int count;
+
 int Delay(int count=1000000){
     double x = 1;
     struct timeval pre, now;
@@ -51,21 +57,32 @@ int Delay(int count=1000000){
 }
 
 
+void sigroutine(int sig){
+    struct timeval now;
+    if (sig == SIGINT){
+        time_t tm_seconds = time((time_t*)NULL);
+        printf("total send packet = %d, end time  = %d s\n", count, tm_seconds); 
+        exit(1);
+    }
+}
+
 int main(int argc, char* argv[]){
-    if(argc != 2){
+    if(argc != 3){
         int delay_us = Delay(100);
         printf("delay us = %u us\n", delay_us);
-        printf("usage : send total_count\n");
+        printf("usage : send dst_ip total_count\n");
         return -1;
     }
-    int total_count = atoi(argv[1]);
-    printf("total count = %d\n", total_count);
+    signal(SIGINT, sigroutine);
+    char* dst_ip = argv[1];
+    int total_count = atoi(argv[2]);
+    printf("send to %s, total count = %d\n",dst_ip, total_count);
     UdpSocket send_sock;
     send_sock.Create();
     struct sockaddr_in target_addr;
     target_addr.sin_family = AF_INET;
     target_addr.sin_port = htons(50000);
-    target_addr.sin_addr.s_addr = inet_addr("162.105.75.113");
+    target_addr.sin_addr.s_addr = inet_addr(dst_ip);
     
     srand(time(0));
 
@@ -82,29 +99,33 @@ int main(int argc, char* argv[]){
                     kBaseVelocity + rand()%10 - 5
                     }); 
     } 
-    struct timeval last_time;
-    gettimeofday(&last_time, NULL);
-    int count = 0;
-    printf("start time  = %d s, %d us\n", last_time.tv_sec, last_time.tv_usec); 
+    time_t tm_seconds = time((time_t*)NULL);
+    count = 0;
+    printf("start time  = %d s\n", tm_seconds); 
+    ostringstream ss;
     while(count < total_count){
-        //gettimeofday(&now, NULL);
-        //if(now.tv_sec - last_time.tv_sec >= 10){
-            for(int i = 0; i < 10000; i ++){
-                bicycles[i].timestamp = now.tv_sec;
-                bicycles[i].longtitude += kDpm * kKmph2Mps * bicycles[i].velocity * 10 * cos(bicycles[i].angle *kApd); //every 10 seconds
-                bicycles[i].latitude += kDpm * kKmph2Mps * bicycles[i].velocity * 10 * sin(bicycles[i].angle * kApd);
-                bicycles[i].angle += (rand() % 10 - 5);
-                bicycles[i].velocity  = kBaseVelocity + rand() % 10 - 5;
-                send_sock.SendTo((char*)&bicycles[i], sizeof(Packet), target_addr);
+        for(int i = 0; i < 10000; i ++){
+            tm_seconds = time((time_t*)NULL);
+            bicycles[i].timestamp = tm_seconds;
 
+            bicycles[i].longtitude += kDpm * kKmph2Mps * bicycles[i].velocity * 10 * cos(bicycles[i].angle *kApd); //every 10 seconds
+            bicycles[i].latitude += kDpm * kKmph2Mps * bicycles[i].velocity * 10 * sin(bicycles[i].angle * kApd);
+            bicycles[i].angle += (rand() % 10 - 5);
+            bicycles[i].velocity  = kBaseVelocity + rand() % 10 - 5;
+            ss.str("");
+            ss << bicycles[i].bicycle_id << "@" <<  bicycles[i].timestamp << 
+                "," << bicycles[i].longtitude << "," << bicycles[i].latitude << 
+                "," << bicycles[i].angle << "," << bicycles[i].velocity;
 
-                int delay_us = Delay(100);
-                count ++;
-            }
-            last_time = now;
-        //}
+            send_sock.SendTo(const_cast<char*>(ss.str().c_str()), ss.str().length(), target_addr);
+            //printf("send to server: %s\n", ss.str().c_str());
+            int delay_us = Delay(100);
+            count ++;
+            if(count == total_count)
+              break;
+        }
     }
-    gettimeofday(&last_time, NULL);
-    printf("end time  = %d s, %d us\n", last_time.tv_sec, last_time.tv_usec); 
+    tm_seconds = time((time_t*)NULL);
+    printf("total send packet = %d, end time  = %d s\n", count, tm_seconds); 
     return 0;
 }
