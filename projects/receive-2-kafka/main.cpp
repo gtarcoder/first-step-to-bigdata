@@ -167,7 +167,7 @@ std::tuple<RdKafka::Producer*, RdKafka::Topic*, int> InitRdKafka(int argc, char*
     }
     brokers = argv[1];
     topic_str = argv[2];
-    int bind_port = 10000 + atoi(argv[3]);
+    int bind_port = atoi(argv[3]);
     run = true;
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);

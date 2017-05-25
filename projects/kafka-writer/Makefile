@@ -1,6 +1,6 @@
 .PHONY:clean all
 
-EXE = receive
+EXE = kafka_writer
 
 LIBS = pthread rdkafka++
 

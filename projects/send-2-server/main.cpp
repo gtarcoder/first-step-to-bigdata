@@ -2,6 +2,7 @@
 #include<sstream>
 #include<string>
 #include<stdio.h>
+#include<sys/time.h>
 #include<signal.h>
 #include<unistd.h>
 #include<stdlib.h>
@@ -19,7 +20,7 @@ using namespace std;
 //assume that byte order of device on bicycle is same with byte order of server 
 struct Packet{
     uint32_t bicycle_id;
-    uint32_t timestamp;
+    uint64_t timestamp;
     double longtitude;
     double latitude;
     double angle;
@@ -120,10 +121,11 @@ int main(int argc, char* argv[]){
     printf("start time  = %d s\n", tm_seconds); 
     ostringstream ss;
     int dstaddr_index = 0;
+    struct timeval cur_time;
     while(count < total_count){
         for(int i = 0; i < bicycle_count; i ++){
-            tm_seconds = time((time_t*)NULL);
-            bicycles[i].timestamp = tm_seconds;
+            gettimeofday(&cur_time, NULL);
+            bicycles[i].timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
 
             bicycles[i].longtitude += kDpm * kKmph2Mps * bicycles[i].velocity * 10 * cos(bicycles[i].angle *kApd); //every 10 seconds
             bicycles[i].latitude += kDpm * kKmph2Mps * bicycles[i].velocity * 10 * sin(bicycles[i].angle * kApd);

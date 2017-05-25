@@ -70,7 +70,8 @@ object KafkaSparkHbase
   def getCurrentTimestamp(): String={
         val now = new Date()
         val str = now.getTime + ""
-        str.substring(0,10)
+        str //milliseconds 
+        //str.substring(0,10)
   }
 
 

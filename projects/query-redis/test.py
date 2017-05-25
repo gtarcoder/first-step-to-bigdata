@@ -6,7 +6,7 @@ import time, datetime
 import threading
 
 #redis 的IP地址，这里使用容器 redis2 的IP地址  
-gRedisHost = '172.17.0.6'
+gRedisHost = '172.17.0.3'
 #redis 数据库序号
 gDbIndex = 1
 
@@ -21,7 +21,7 @@ def parseTrackInfo(info):
         return None
 
     time_writeredis = int(info_arr[4].split('@')[1])
-    time_current = int(time.time())
+    time_current = int(1000*time.time())
     time_send = int(id_time[1])
     '''
     print 'current time is %s, trackinfo pushed into redis time is %s\n\
@@ -41,6 +41,7 @@ bicycle %s\'s track status at time %s is : \n\
                 info_arr[3],
                 info_arr[4].split('@')[0])
     '''
+
     delay_send_2_writeredis = time_writeredis - time_send
     delay_redis_write_2_read = time_current -  time_writeredis
     delay_send_2_readredis = time_current - time_send
@@ -65,5 +66,9 @@ average delay from send to read from redis is %d'%(avg_delays[0]/count, avg_dela
             count = 0
 
 if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print 'usage test.sh redisHost'
+        exit(1)
+    gRedisHost = sys.argv[1]
     pool = redis.ConnectionPool(host=gRedisHost, port=6379, db=gDbIndex)
-    query(redis.Redis(connection_pool=pool), '1000016') 
+    query(redis.Redis(connection_pool=pool), '1007451') 

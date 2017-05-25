@@ -44,6 +44,11 @@ def monitorDB(pool, fixed_size, thread_num):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print 'usage : monitor.sh redis_host'
+        exit(1)
+    gRedisHost = sys.argv[1]
+    print 'redis host is ', gRedisHost
     pool = redis.ConnectionPool(host=gRedisHost, port=6379, db=gDbIndex)
     monitorDB(pool, 5, 10)
      

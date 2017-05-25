@@ -2,6 +2,7 @@
 #include<thread>
 #include<tuple>
 #include<string>
+#include<sstream>
 #include<stdio.h>
 #include<stdlib.h>
 #include<fstream>
@@ -164,7 +165,7 @@ std::tuple<RdKafka::Producer*, RdKafka::Topic*> InitRdKafka(int argc, char* argv
         exit(1);
     }
     brokers = "kafka1:9092,kafka2:9092,kafka3:9092";
-    topic_str = "test";
+    topic_str = "bicycle_track";
     run = true;
     total_count = atoi(argv[1]);
     printf("total count to write = %d\n", total_count);
@@ -185,35 +186,6 @@ std::tuple<RdKafka::Producer*, RdKafka::Topic*> InitRdKafka(int argc, char* argv
 
     ExampleEventCb ex_event_cb;
     conf->set("event_cb", &ex_event_cb, errstr);
-
-    /*
-    int pass;
-    for (pass = 0 ; pass < 2 ; pass++) {
-      std::list<std::string> *dump;
-      if (pass == 0) {
-        dump = conf->dump();
-        std::cout << "# Global config" << std::endl;
-      } else {
-        dump = tconf->dump();
-        std::cout << "# Topic config" << std::endl;
-      }
-
-      for (std::list<std::string>::iterator it = dump->begin();
-           it != dump->end(); ) {
-        std::cout << *it << " = ";
-        it++;
-        std::cout << *it << std::endl;
-        it++;
-      }
-      std::cout << std::endl;
-    }
-
-    */
-
-    /* Set delivery report callback */
-    //ExampleDeliveryReportCb ex_dr_cb;
-    //conf->set("dr_cb", &ex_dr_cb, errstr);
-
     /*
      * Create producer using accumulated global configuration.
      */
@@ -248,6 +220,9 @@ void ProcsFunc(RdKafka::Producer* producer, RdKafka::Topic* topic){
     time_t tm_start = time((time_t*)NULL);
     printf("start to procss, time = %u\n", tm_start);
 
+    struct timeval cur_time;
+    ostringstream ss;
+
     while(procs_count < total_count){
         procs_count ++;
         if (procs_count % 100000 == 0){
@@ -258,9 +233,13 @@ void ProcsFunc(RdKafka::Producer* producer, RdKafka::Topic* topic){
             }
         }
 
+        ss.str("");
+        gettimeofday(&cur_time, NULL);
+        uint64_t timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
+        ss << "1007451@" << timestamp << ",116.078,40.0434,35,21";
         while(true){
             resp = producer->produce(topic, partition, RdKafka::Producer::RK_MSG_COPY /* Copy payload */,
-                  procs_buffer, procs_len,
+                  const_cast<char*>(ss.str().c_str()), ss.str().length(),
                   NULL, NULL);
             //printf("pushing %s to kafka, resp = %d\n", procs_buffer, resp); 
             if (resp == RdKafka::ERR__QUEUE_FULL){

@@ -7,6 +7,7 @@
 #include<stdlib.h>
 #include<fstream>
 #include<csignal>
+#include<signal.h>
 #include<unistd.h>
 #include<time.h>
 #include"utils.h"
@@ -209,6 +210,7 @@ std::tuple<RdKafka::Producer*, RdKafka::Topic*> InitRdKafka(){
     return std::make_tuple(producer, topic);
 }
 
+int gRecvCount = 0;
 void ReceiveFunc(){
     const int kMaxBufSize = 10000;
     char recv_buffer[kMaxBufSize];
@@ -223,6 +225,7 @@ void ReceiveFunc(){
             fifo_index = (fifo_index + 1) % fifo_queues.size();
             //fifo_queue.PushPacketLockFree(recv_buffer, recv_len);
             recv_count ++;            
+            gRecvCount = recv_count;
         }
     }
 }
@@ -237,6 +240,7 @@ void ProcsFunc(RdKafka::Producer* producer, RdKafka::Topic* topic, FifoQueue* fi
     while(run){
         tm_seconds = time((time_t*)NULL);
         fifo_queue->PopPacketMutex(procs_buffer, &procs_len);
+
         procs_count ++;
         if (procs_count % 100000 == 0){
             printf("$$$$$$$$$$$$$process, count = %u, time = %u\n", procs_count, tm_seconds);
@@ -263,12 +267,18 @@ void ProcsFunc(RdKafka::Producer* producer, RdKafka::Topic* topic, FifoQueue* fi
     }
 }
 
-
 int main(int argc, char* argv[]){
     if(argc != 2){
         printf("usage : receive write_thread_num\n");
         return -1;
     }
+
+    int s, sig;
+    sigset_t sset;
+    sigemptyset(&sset);
+    sigaddset(&sset, SIGINT);
+
+
     int write_thread_num = atoi(argv[1]);
     recv_sock.Create();
     recv_sock.SetReusePort(true);
@@ -287,7 +297,16 @@ int main(int argc, char* argv[]){
         std::tuple<RdKafka::Producer*, RdKafka::Topic*> param = InitRdKafka(); 
         procs_threads.push_back(std::thread(std::bind(ProcsFunc, std::get<0>(param), std::get<1>(param), fifo_queues.back())));
     }
-    
-    recv_thread.join();
+
+    s = pthread_sigmask(SIG_SETMASK, &sset, NULL);
+    if (s != 0)
+        perror("pthread sig mask error!\n");
+
+    s = sigwait(&sset, &sig);
+    if (s != 0){
+        perror("sigwait error!\n");
+    }else{
+        printf("total received records = %d\n", gRecvCount);
+    }
     return 0;
 }

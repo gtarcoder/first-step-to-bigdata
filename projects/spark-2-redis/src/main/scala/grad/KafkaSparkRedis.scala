@@ -9,7 +9,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.rdd.PairRDDFunctions
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaUtils}
-import org.apache.spark.streaming.{Duration, Time, Minutes, Seconds, StreamingContext}
+import org.apache.spark.streaming.{Duration, Time, Minutes, Seconds, Milliseconds, StreamingContext}
 import scala.collection.mutable.ListBuffer
 
 import java.text.SimpleDateFormat
@@ -20,53 +20,70 @@ object KafkaSparkRedis
 
   def main(args: Array[String]): Unit =
   {
-    if (args.length < 4) {
-        System.err.println("Usage: KafkaSparkRedis <broker> <zookeeper> <topic> <redisDbIndex>")
+    if (args.length < 7) {
+        System.err.println("Usage: KafkaSparkRedis <broker> <zookeeper> <topic> <redisDbIndex> <rdd time/ms> <kafka partition> <spark parallelism>")
         System.exit(1)
    }
 
-    val Array(broker, zk, topic, dbIndex) = args
+    val Array(broker, zk, topic, dbIndex, rdd_time, kafka_partition, spark_parallelism) = args
         
     val sparkConf = new SparkConf().setAppName("BicycleTrackMonitor")
     val sc = new SparkContext(sparkConf)
-    val ssc = new StreamingContext(sc, Seconds(1))
+    val ssc = new StreamingContext(sc, Milliseconds(rdd_time.toInt))
 
     val kafkaConf = Map("metadata.broker.list" -> broker,
                         "zookeeper.connect" -> zk,
                         "group.id" -> "kafka-spark-redis",
                         "zookeeper.connection.timeout.ms" -> "1000")
-
+    /*
     val lines = KafkaUtils.createStream[Array[Byte], String, DefaultDecoder, StringDecoder](
       ssc, kafkaConf, Map(topic -> 1),
       StorageLevel.MEMORY_ONLY_SER).map(_._2)
+    */
+
+    val input_partitions = kafka_partition.toInt
+    val streams = (1 to input_partitions) map { _ => 
+        KafkaUtils.createStream[Array[Byte], String, DefaultDecoder, StringDecoder](ssc, kafkaConf, Map(topic -> 1), StorageLevel.MEMORY_ONLY_SER).map(_._2)
+    }
+
+    val lines = ssc.union(streams)
+    lines.repartition(spark_parallelism.toInt)
 
     lines.map(convert2).foreachRDD(rdd => {
-                rdd.sortByKey().foreachPartition(partition => {
-                    val jedis = RedisClient.pool.getResource
-                    //使用1 号数据库
-                    jedis.select(dbIndex.toInt)
-                    val pl = jedis.pipelined()
-                    partition.foreach(record => {
-                        val id = record._1
-                        val time = record._2._1
-                        val info = record._2._2 + '@' + getCurrentTimestamp()
-                        val zset_name = "info_" + id
-                        //add to zset
-                        pl.zadd(zset_name, time, info) 
-                        //println("write to redis :" + zset_name + ", " + info)
+                //sortByKey().
+                if(!rdd.isEmpty()){
+                    rdd.foreachPartition(partition => {
+                        val jedis = RedisClient.pool.getResource
+                        //使用1 号数据库
+                        jedis.select(dbIndex.toInt)
+                        val pl = jedis.pipelined()
+
+                        partition.foreach(record => {
+                            val id = record._1
+                            val time = record._2._1
+                            val info = record._2._2 + '@' + getCurrentTimestamp()
+                            val zset_name = "info_" + id
+                            //add to zset
+                            pl.zadd(zset_name, time, info) 
+                            //println("write to redis :" + zset_name + ", " + info)
+                        })
+
+                        pl.sync()
+                        RedisClient.pool.returnResource(jedis)
                     })
-                    pl.sync()
-                    RedisClient.pool.returnResource(jedis)
-                })
+
+                }
             })
+
     ssc.start()
     ssc.awaitTermination()
   }
 
+
   def getCurrentTimestamp(): String={
         val now = new Date()
         val str = now.getTime + ""
-        str.substring(0,10)
+        str
   }
 
   def convert(t: (String)) = {

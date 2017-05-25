@@ -11,7 +11,7 @@ from hbase.ttypes import *
 
 #thrift server的ip地址。docker容器 master1中执行 hbase-daemon.sh start thrift， 可以启动thrift server
 #此IP地址就是 master1的对外IP地址
-gHbaseHost = '172.17.0.2'
+gHbaseHost = '172.17.0.8'
 gHbasePort = 9090
 
 def openConnection(host, port):
@@ -37,7 +37,7 @@ def parseTrackInfo(tresult):
     velocity = tresult.columns['move:velocity'].value
 
     time_write_2_redis = int(velocity.split('@')[1])
-    time_current = int(time.time())
+    time_current = int(1000*time.time())
     time_send = int(id_time[1])
 
     '''
@@ -74,7 +74,7 @@ def query(client, bicycle_id):
                         columns=['position', 'move'],
                         attributes=None)
         try:
-            result = client.scannerGetList(id, 100000)
+            result = client.scannerGetList(id, 100)
         except BaseException, m:
             print 'exception occured', m
             time.sleep(10)
@@ -99,5 +99,5 @@ average delay from send to read from redis is %d'%(avg_delays[0]/count, avg_dela
 
 if __name__ == '__main__':
     transport, client = openConnection(gHbaseHost, gHbasePort)
-    query(client, '1000016')
+    query(client, '1000001')
     closeConnection(transport, client)

@@ -34,13 +34,13 @@ RUN chown -R grad:grad /usr/local/kafka
 
 RUN echo "grad ALL= NOPASSWD: ALL" >> /etc/sudoers
 
-USER grad
-RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
-RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
-
 ##配置 bootstrap
 COPY bootstrap.sh /home/grad/  
 RUN chmod 766 /home/grad/bootstrap.sh  
-  
+
+USER grad
+RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+ 
 ENTRYPOINT ["/home/grad/bootstrap.sh"]  
 CMD ["/bin/bash"]
